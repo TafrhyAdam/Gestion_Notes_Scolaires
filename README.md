@@ -11,16 +11,16 @@
 
 ####Prérequis#######
 
-Python 
-Pip (installé avec Python)
-Django (installé via pip)
-Un navigateur web moderne
-MySQL
+- Python
+- Pip (installé avec Python)
+- Django (installé via pip)
+- Un navigateur web moderne
+- MySQL
 
 ####Étapes d'installation#####
 
-Cloner le dépôt 
-Créer un environnement virtuel
-Installer les dépendances avec ‘ pip install -r requirements.txt ’
-Appliquer les migrations Django avec ‘python manage.py migrate’
-Lancer le serveur avec python manage.py runserver
+- Cloner le dépôt 
+- Créer un environnement virtuel
+- Installer les dépendances avec ‘ pip install -r requirements.txt ’
+- Appliquer les migrations Django avec ‘python manage.py migrate’
+- Lancer le serveur avec python manage.py runserver
