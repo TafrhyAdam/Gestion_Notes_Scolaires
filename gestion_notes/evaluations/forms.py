@@ -13,17 +13,17 @@ class NoteForm(forms.ModelForm):
         if 'evaluation' in self.data:
             evaluation_id = self.data.get('evaluation')
             try:
-                # Si l'evaluation est valide, filtrer les eleves associes à cette evaluation
+                # Si l'evaluation est valide filtrer les eleves associes à cette evaluation
                 evaluation = Evaluation.objects.get(id=evaluation_id)
                 self.fields['eleve'].queryset = Eleve.objects.filter(classe=evaluation.classe)
             except Evaluation.DoesNotExist:
-                # Si l'evaluation n'existe pas, ne rien afficher
+                # Si l'evaluation n'existe pas ne rien afficher
                 self.fields['eleve'].queryset = Eleve.objects.none()
         elif self.instance.pk:
-            # Si l'instance du formulaire existe , recuperer les eleves associes
+            # Si l'instance du formulaire existe recuperer les eleves associes
             self.fields['eleve'].queryset = self.instance.evaluation.classe.eleve_set.all()
         else:
-            # Si aucune evaluation n'est selectionnee, ne montrer aucun eleve
+            # Si aucune evaluation n'est selectionnee ne montrer aucun eleve
             self.fields['eleve'].queryset = Eleve.objects.none()
 
 

@@ -26,10 +26,7 @@ def page_resultats_bulletins(request):
     if classe_id:
         eleves = Eleve.objects.filter(classe_id=classe_id).select_related('utilisateur')
         bulletins = bulletins.filter(eleve__classe_id=classe_id)
-    # Optionnel : filtrer par période si vous souhaitez n'afficher que la période courante
-    # periode = Periode.objects.filter(date_debut__lte=date.today(), date_fin__gte=date.today()).first()
-    # if periode:
-    #     bulletins = bulletins.filter(periode=periode)
+        
     fichiers = []
     for bulletin in bulletins:
         if bulletin.fichier_pdf:
@@ -41,7 +38,7 @@ def page_resultats_bulletins(request):
         'classes': classes,
         'eleves': eleves,
         'classe_id': classe_id,
-        'bulletins': bulletins,  # <-- minuscule
+        'bulletins': bulletins, 
         'fichiers': fichiers,
     })
 

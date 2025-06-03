@@ -52,7 +52,7 @@ def saisie_notes(request):
                                 evaluation=evaluation,
                                 defaults={'valeur': note_valeur}
                             )
-                            # Creation d'alerte
+                            # Creation d alerte
                             seuil = 10.0
                             if note_valeur < seuil:
                                 message = f"L'élève {eleve.utilisateur.full_name} a une note faible : {note_valeur:.2f}."

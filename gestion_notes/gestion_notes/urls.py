@@ -29,6 +29,6 @@ urlpatterns = [
     path('evaluations/', include('evaluations.urls')),
 ]
 
-#pour accéder aux fichiers medias via le serveur Django
+#pour acceder aux fichiers medias via le serveur Django
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -22,7 +22,7 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                # Redirection selon le rôle
+                # Redirection selon le role
                 if user.role == 'admin':
                     return redirect('admin_dashboard')
                 elif user.role == 'enseignant':
@@ -57,7 +57,7 @@ def is_enseignant(user):
 def enseignant_dashboard(request):
     utilisateur = request.user
     if utilisateur.role != 'enseignant':
-        return redirect('accueil')  # ou afficher un message d'erreur
+        return redirect('accueil')  
 
     alertes = Alerte.objects.filter(destinataire=utilisateur, vue=False).order_by('-id')
 
