@@ -1,0 +1,137 @@
+{% load static %}
+<link rel="icon" type="image/png" href="{% static 'images/LogoEcole.png' %}"><!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .login-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            transition: background-color 0.3s, box-shadow 0.3s, color 0.3s;
+        }
+
+        .login-container h1 {
+            margin-bottom: 24px;
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+        }
+
+        .login-container form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .login-container label {
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .login-container input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .login-container button {
+            background-color: #333;
+            color: #fff;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-container button:hover {
+            background-color: #222;
+        }
+
+        .errorlist {
+            color: #d9534f;
+            margin-bottom: 16px;
+            list-style: none;
+            padding: 0;
+        }
+
+        body.theme-dark {
+            background-color: #18181b;
+            color: #e0e0e0;
+        }
+        .theme-dark .login-container {
+            background-color: #232946;
+            color: #e0e0e0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        .theme-dark .login-container h1 {
+            color: #a5b4fc;
+        }
+        .theme-dark .login-container label {
+            color: #c7d2fe;
+        }
+        .theme-dark .login-container input {
+            background-color: #232946;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+        .theme-dark .login-container button {
+            background-color: #6366f1;
+            color: #fff;
+        }
+        .theme-dark .login-container button:hover {
+            background-color: #3b82f6;
+        }
+        .theme-dark .errorlist {
+            color: #f87171;
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="login-container">
+        <h1>Connexion</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Se connecter</button>
+        </form>
+    </div>
+    <button id="themeToggle" style="position:fixed;top:20px;right:20px;padding:10px 15px;background:#e1e1e1;color:black;border:none;border-radius:5px;cursor:pointer;z-index:1000;">🌙</button>
+    <script>
+        function setTheme(dark) {
+            document.body.classList.toggle('theme-dark', dark);
+            document.documentElement.classList.toggle('theme-dark', dark);
+            document.getElementById('themeToggle').textContent = dark ? '☀️' : '🌙';
+        }
+        const dark = localStorage.getItem('theme') === 'dark';
+        setTheme(dark);
+
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const isDark = !document.body.classList.contains('theme-dark');
+            setTheme(isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>

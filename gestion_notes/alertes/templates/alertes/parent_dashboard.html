@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord Parent</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+        body {
+            padding-top: 100px;
+        }
+
+        .dark-mode {
+            background-color: #111827 !important;
+            color: #f1f5f9 !important;
+        }
+
+        .dark-mode .card {
+            background-color: #1f2937 !important;
+            color: #f1f5f9 !important;
+        }
+
+        .dark-mode .dark-text {
+            color: #ffffff !important;
+        }
+
+        .dark-mode .btn-outline-light:hover {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .alert-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 10px 20px;
+            z-index: 9999;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100 bg-light position-relative" id="body">
+
+    <button id="theme-toggle" class="theme-toggle btn btn-sm btn-outline-dark">
+        🌙
+    </button>
+
+    {% if alertes %}
+    <div class="alert-top">
+        <h5 class="fw-bold mb-3">🔔 Alertes importantes</h5>
+        <ul class="list-unstyled">
+            {% for alerte in alertes %}
+            <li class="mb-2 p-3 bg-danger bg-opacity-10 rounded shadow-sm d-flex justify-content-between align-items-center">
+                <span class="small">{{ alerte.message }}</span>
+                <form action="{% url 'marquer_alerte_lue' alerte.id %}" method="post" class="ms-3">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link btn-sm text-primary">Marquer comme lue</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="card shadow-lg p-4 text-center" style="width: 100%; max-width: 600px;">
+        <div class="d-flex justify-content-center align-items-center mb-4">
+            <img src="{% static 'images/LogoEcole.png' %}" alt="logo" height="64" class="me-3">
+            <h1 class="h3 text-primary mb-0">Tableau de bord Parent</h1>
+        </div>
+
+        <p class="text-muted dark-text mb-4">
+            Bienvenue, Parent ! Suivez les résultats scolaires de votre enfant.
+        </p>
+
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'consulter_notes' %}" class="btn btn-primary">
+                👨‍👩‍👧 Voir les notes de mes enfants
+            </a>
+            <a href="{% url 'bulletins_parent' %}" class="btn btn-success">
+                📄 Voir les bulletins
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const body = document.getElementById('body');
+        const toggle = document.getElementById('theme-toggle');
+
+        if (localStorage.theme === 'dark') {
+            body.classList.add('dark-mode');
+            toggle.textContent = '☀️';
+        }
+
+        toggle.addEventListener('click', () => {
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                toggle.textContent = '🌙';
+            } else {
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                toggle.textContent = '☀️';
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+{% load static %}
+<link rel="icon" type="image/png" href="{% static 'images/LogoEcole.png' %}">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Génération des Bulletins</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body.dark-mode {
+        background-color: #181c24 !important;
+        color: #e0e0e0;
+      }
+      .dark-mode .card {
+        background-color: #232b36;
+        color: #f1f1f1;
+        border-color: #444;
+      }
+      .dark-mode .btn-primary, .dark-mode .btn-secondary, .dark-mode .btn-danger, .dark-mode .btn-warning, .dark-mode .btn-info {
+        color: #fff;
+        border: none;
+      }
+      .dark-mode .btn-primary { 
+        background-color: #0d6efd; 
+      }
+      .dark-mode .btn-secondary { 
+        background-color: #696a6c; 
+      }
+      .dark-mode .btn-danger { 
+        background-color: #dc3545; 
+      }
+      .dark-mode .btn-warning { 
+        background-color: #ffc107; color: #222; 
+      }
+      .dark-mode .btn-info { 
+        background-color: #0dcaf0; 
+      }
+      .dark-mode .alert-info, .dark-mode .alert-danger, .dark-mode .alert-warning {
+        background-color: #232b36;
+        color: #f1f1f1;
+        border-color: #444;
+      }
+      .dark-mode .table {
+        background-color: #fff;
+        color: #23272f;
+      }
+      .dark-mode .table thead th {
+        background-color: #47494d !important;
+        color: #f1f1f1 !important;
+      }
+      .dark-mode .table tbody tr, .dark-mode .table td {
+        background-color: #e0dede !important;
+        color: #222 !important;
+      }
+      #theme-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        padding: 10px 15px;
+        background-color: #e1e1e1;
+        color: #222;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        transition: background-color 0.3s, color 0.3s;
+      }
+      #theme-toggle:hover {
+        background-color: #bdbdbd;
+      }
+      .dark-mode #theme-toggle {
+        background-color: #232b36;
+        color: #f1f1f1;
+      }
+    </style>
+</head>
+
+<body class="min-vh-100 d-flex align-items-center py-5">
+  
+    <button id="theme-toggle" title="Mode sombre">🌙</button>
+    <div class="container">
+      
+        <div class="card shadow-sm mx-auto" style="max-width: 800px;">
+            <div class="card-body">
+              <h1 class="card-title text-primary mb-4">Génération des Bulletins</h1>
+        
+                <!-- Selectionner classe -->
+                <form method="get" action="{% url 'page_resultats_bulletins' %}" class="mb-4">
+                    <label for="classe" class="form-label">Filtrer par classe :</label>
+                    <select name="classe_id" id="classe" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Sélectionner une classe --</option>
+                        {% for classe in classes %}
+                        <option value="{{ classe.id }}" {% if classe_id|stringformat:"s" == classe.id|stringformat:"s" %}selected{% endif %}>
+                            {{ classe.nom }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </form>
+
+                <!-- Formulaire de generation multiple -->
+                 {% if eleves %}
+                 <form method="POST" action="{% url 'generer_bulletins_multiple' %}">
+                  {% csrf_token %}
+                  <button type="button" id="select_all_btn" class="btn btn-secondary mb-3">Tout sélectionner / Tout désélectionner</button>
+                  <ul class="list-group mb-3" style="max-height: 400px; overflow-y: auto;">
+                    {% for eleve in eleves %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input eleve-checkbox" name="eleves" value="{{ eleve.id }}" id="eleve_{{ eleve.id }}">
+                        <label for="eleve_{{ eleve.id }}" class="form-check-label">{{ eleve.utilisateur.full_name }}</label>
+                      </div>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                      <div class="mb-4">
+                        <button type="submit" class="btn btn-primary">Générer les bulletins sélectionnés</button>
+                      </div>
+                    </form>
+                  {% elif classe_id %}
+                    <p class="text-muted">Aucun élève dans cette classe.</p>
+                  {% endif %}
+
+                
+
+                <!-- Rendre bulletins disponibles et indisponibles -->
+                {% if bulletins and bulletins|length > 0 %}
+                <form method="post" action="{% url 'rendre_bulletins_disponibles' %}">
+                  {% csrf_token %}
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Élève</th>
+                        <th>Période</th>
+                        <th>Moyenne</th>
+                        <th>PDF</th>
+                        <th>Disponible</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for bulletin in bulletins %}
+                      <tr>
+                        <td>
+                          <input type="checkbox" name="bulletin_ids" value="{{ bulletin.id }}">
+                        </td>
+                        <td>
+                          {% if bulletin.eleve.utilisateur.first_name or bulletin.eleve.utilisateur.last_name %}
+                            {{ bulletin.eleve.utilisateur.first_name }} {{ bulletin.eleve.utilisateur.last_name }}
+                          {% else %}
+                            {{ bulletin.eleve.utilisateur.username }}
+                          {% endif %}
+                        </td>
+                        <td>{{ bulletin.periode }}</td>
+                        <td>{{ bulletin.moyenne|floatformat:2 }}</td>
+                        <td>
+                          {% if bulletin.fichier_pdf %}
+                            <a href="{{ bulletin.fichier_pdf.url }}" target="_blank">PDF</a>
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if bulletin.disponible %}
+                            <span class="badge bg-success">Oui</span>
+                          {% else %}
+                            <span class="badge bg-secondary">Non</span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          <button type="button" class="btn btn-sm btn-danger btn-delete-bulletin" data-bulletin-id="{{ bulletin.id }}">Supprimer</button>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                  <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" name="action" value="disponible">Rendre disponibles</button>
+                    <button type="submit" class="btn btn-danger" name="action" value="indisponible">Rendre indisponibles</button>
+                  </div>
+                </form>
+  
+                {% for bulletin in bulletins %}
+                  <form method="post" action="{% url 'supprimer_bulletin' bulletin.id %}" id="delete-bulletin-{{ bulletin.id }}" style="display:none;">
+                    {% csrf_token %}
+                  </form>
+                {% endfor %}
+                <script>
+                  document.querySelectorAll('.btn-delete-bulletin').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                      e.preventDefault();
+                      if(confirm('Supprimer ce bulletin ?')) {
+                        document.getElementById('delete-bulletin-' + btn.dataset.bulletinId).submit();
+                      }
+                    });
+                  });
+                </script>
+                {% endif %}
+            </div>
+            <a href="{% url 'admin_dashboard' %} " class="btn btn-primary ">← Retour au tableau de bord</a>
+        </div>
+        
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.getElementById('select_all_btn')?.addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('.eleve-checkbox');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        checkboxes.forEach(cb => cb.checked = !allChecked);
+      });
+      // Mode sombre
+      const body = document.body;
+      const toggleBtn = document.getElementById('theme-toggle');
+      if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+        toggleBtn.textContent = '☀️'; 
+      }
+      toggleBtn.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        if (body.classList.contains('dark-mode')) {
+          localStorage.setItem('theme', 'dark');
+          toggleBtn.textContent = '☀️';
+        } else {
+          localStorage.setItem('theme', 'light');
+          toggleBtn.textContent = '🌙';
+        }
+      });
+      
+      document.getElementById('form-generation-bulletins')?.addEventListener('submit', function() {
+        document.getElementById('classe')?.blur();
+      }, 100);
+    </script>
+    
+</body>
+</html>
